@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { prefersReducedMotion } from '../utils/motion'
 
 interface DynamicBackgroundProps {
   colors: [string, string, string]
@@ -60,7 +61,11 @@ export default function DynamicBackground({ colors, isPlaying, intensity }: Dyna
   const tickRef = useRef(0)
   const rippleTimerRef = useRef(0)
   const cometTimerRef = useRef(0)
-  const prevIntensityRef = useRef(0)
+  const intensityRef = useRef(intensity)
+
+  useEffect(() => {
+    intensityRef.current = intensity
+  }, [intensity])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -109,10 +114,37 @@ export default function DynamicBackground({ colors, isPlaying, intensity }: Dyna
     const c0 = hexToRgb(colors[0])
     const c1 = hexToRgb(colors[1])
 
+    // 减少动态效果：只绘制一帧静态星尘
+    if (prefersReducedMotion()) {
+      const drawStatic = () => {
+        const w = W()
+        const h = H()
+        ctx.clearRect(0, 0, w, h)
+        starsRef.current.forEach((s) => {
+          const rgb = c0
+          ctx.beginPath()
+          ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2)
+          ctx.fillStyle = `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${s.alpha})`
+          ctx.fill()
+        })
+      }
+      const onResize = () => {
+        resize()
+        drawStatic()
+      }
+      drawStatic()
+      window.addEventListener('resize', onResize)
+      return () => {
+        window.removeEventListener('resize', onResize)
+        window.removeEventListener('resize', resize)
+      }
+    }
+
     const draw = () => {
       const w = W()
       const h = H()
       const t = tickRef.current++
+      const intensity = intensityRef.current
       ctx.clearRect(0, 0, w, h)
 
       const speedMul = isPlaying ? 1 + intensity * 1.5 : 0.3
@@ -350,7 +382,6 @@ export default function DynamicBackground({ colors, isPlaying, intensity }: Dyna
         ctx.fillRect(0, gridY - 30, w, 60)
       }
 
-      prevIntensityRef.current = intensity
       rafRef.current = requestAnimationFrame(draw)
     }
     rafRef.current = requestAnimationFrame(draw)
@@ -359,7 +390,8 @@ export default function DynamicBackground({ colors, isPlaying, intensity }: Dyna
       cancelAnimationFrame(rafRef.current)
       window.removeEventListener('resize', resize)
     }
-  }, [colors, isPlaying, intensity])
+    // intensity 通过 ref 读取，避免每帧重建整个特效
+  }, [colors, isPlaying])
 
   return (
     <div className="fixed inset-0 -z-10 overflow-hidden">

@@ -12,6 +12,8 @@ export function useAudioPlayer({ songs, autoplay = false }: UseAudioPlayerOption
   const analyserRef = useRef<AnalyserNode | null>(null)
   const sourceNodeRef = useRef<MediaElementAudioSourceNode | null>(null)
   const gainRef = useRef<GainNode | null>(null)
+  const pendingPlayRef = useRef(false)
+  const playRef = useRef<() => Promise<void>>(async () => {})
 
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
@@ -43,12 +45,26 @@ export function useAudioPlayer({ songs, autoplay = false }: UseAudioPlayerOption
     const onEnd = () => handleEndedRef.current()
     const onPlay = () => setIsPlaying(true)
     const onPause = () => setIsPlaying(false)
+    const onError = () => {
+      // 加载失败时清除待播放标记，避免状态卡死
+      pendingPlayRef.current = false
+      console.warn('音频加载失败:', audio.src)
+    }
+    // 切歌后由 canplay 统一触发播放，避免重复监听
+    const onCanPlay = () => {
+      if (pendingPlayRef.current) {
+        pendingPlayRef.current = false
+        playRef.current()
+      }
+    }
 
     audio.addEventListener('loadedmetadata', onLoaded)
     audio.addEventListener('timeupdate', onTime)
     audio.addEventListener('ended', onEnd)
     audio.addEventListener('play', onPlay)
     audio.addEventListener('pause', onPause)
+    audio.addEventListener('error', onError)
+    audio.addEventListener('canplay', onCanPlay)
 
     return () => {
       audio.removeEventListener('loadedmetadata', onLoaded)
@@ -56,6 +72,8 @@ export function useAudioPlayer({ songs, autoplay = false }: UseAudioPlayerOption
       audio.removeEventListener('ended', onEnd)
       audio.removeEventListener('play', onPlay)
       audio.removeEventListener('pause', onPause)
+      audio.removeEventListener('error', onError)
+      audio.removeEventListener('canplay', onCanPlay)
       audio.pause()
       audio.src = ''
     }
@@ -76,6 +94,8 @@ export function useAudioPlayer({ songs, autoplay = false }: UseAudioPlayerOption
       analyserNode.fftSize = 256
       analyserNode.smoothingTimeConstant = 0.8
       gain.gain.value = volume
+      // 路由到 Web Audio 后音量只由 GainNode 控制，避免双重衰减
+      audioRef.current.volume = 1
 
       source.connect(analyserNode)
       analyserNode.connect(gain)
@@ -103,15 +123,12 @@ export function useAudioPlayer({ songs, autoplay = false }: UseAudioPlayerOption
 
   /* ---------- 音量同步 ---------- */
   useEffect(() => {
+    const target = muted ? 0 : volume
     if (gainRef.current && audioCtxRef.current) {
-      gainRef.current.gain.setTargetAtTime(
-        muted ? 0 : volume,
-        audioCtxRef.current.currentTime,
-        0.01,
-      )
-    }
-    if (audioRef.current) {
-      audioRef.current.volume = muted ? 0 : volume
+      gainRef.current.gain.setTargetAtTime(target, audioCtxRef.current.currentTime, 0.01)
+      if (audioRef.current) audioRef.current.volume = 1
+    } else if (audioRef.current) {
+      audioRef.current.volume = target
     }
   }, [volume, muted])
 
@@ -127,6 +144,11 @@ export function useAudioPlayer({ songs, autoplay = false }: UseAudioPlayerOption
       console.warn('play failed', e)
     }
   }, [ensureAudioGraph])
+
+  // 供 canplay 监听器读取最新的 play
+  useEffect(() => {
+    playRef.current = play
+  }, [play])
 
   const pause = useCallback(() => {
     audioRef.current?.pause()
@@ -149,17 +171,10 @@ export function useAudioPlayer({ songs, autoplay = false }: UseAudioPlayerOption
     (index: number) => {
       const next = ((index % songs.length) + songs.length) % songs.length
       setCurrentIndex(next)
-      // 等待 React 渲染 + audio loadedmetadata 后再播放
-      const audio = audioRef.current
-      if (audio) {
-        const onReady = () => {
-          audio.removeEventListener('canplay', onReady)
-          play()
-        }
-        audio.addEventListener('canplay', onReady)
-      }
+      // 标记待播放，等当前歌曲 canplay 后统一触发
+      pendingPlayRef.current = true
     },
-    [songs.length, play],
+    [songs.length],
   )
 
   const next = useCallback(() => {
@@ -223,7 +238,6 @@ export function useAudioPlayer({ songs, autoplay = false }: UseAudioPlayerOption
     playMode,
     ready,
     analyser,
-    audio: audioRef.current,
     setVolume,
     setMuted,
     play,

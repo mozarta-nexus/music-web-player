@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { prefersReducedMotion } from '../utils/motion'
 
 /**
  * 从 AnalyserNode 实时读取音乐强度（0-1）
@@ -9,6 +10,8 @@ export function useAudioIntensity(analyser: AnalyserNode | null, isPlaying: bool
   const dataRef = useRef<Uint8Array<ArrayBuffer> | null>(null)
   const rafRef = useRef<number>(0)
   const smoothRef = useRef(0)
+  const lastEmitRef = useRef(0)
+  const lastValueRef = useRef(0)
 
   useEffect(() => {
     if (!analyser) return
@@ -16,6 +19,8 @@ export function useAudioIntensity(analyser: AnalyserNode | null, isPlaying: bool
   }, [analyser])
 
   useEffect(() => {
+    if (prefersReducedMotion()) return
+
     const tick = () => {
       const data = dataRef.current
       const node = analyser
@@ -26,9 +31,18 @@ export function useAudioIntensity(analyser: AnalyserNode | null, isPlaying: bool
         for (let i = 0; i < n; i++) sum += data[i]
         const avg = sum / n / 255
         smoothRef.current += (avg - smoothRef.current) * 0.15
-        setIntensity(smoothRef.current)
       } else {
         smoothRef.current *= 0.9
+      }
+
+      // 限频 + 阈值：避免每帧触发 React 重渲染
+      const now = performance.now()
+      if (
+        now - lastEmitRef.current >= 80 &&
+        Math.abs(smoothRef.current - lastValueRef.current) >= 0.004
+      ) {
+        lastEmitRef.current = now
+        lastValueRef.current = smoothRef.current
         setIntensity(smoothRef.current)
       }
       rafRef.current = requestAnimationFrame(tick)

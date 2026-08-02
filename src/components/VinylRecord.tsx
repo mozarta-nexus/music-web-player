@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
+import { prefersReducedMotion } from '../utils/motion'
 
 interface VinylRecordProps {
   cover: string
@@ -25,13 +26,15 @@ export default function VinylRecord({
   accent = '#a855f7',
   entered = true,
 }: VinylRecordProps) {
-  const [angle, setAngle] = useState(0)
-  const angleRef = useRef(0)
+  const recordRef = useRef<HTMLDivElement | null>(null)
   const speedRef = useRef(0)
   const rafRef = useRef<number>(0)
   const lastTimeRef = useRef<number>(0)
+  const angleRef = useRef(0)
 
   useEffect(() => {
+    if (prefersReducedMotion()) return
+
     const tick = (t: number) => {
       const last = lastTimeRef.current || t
       const dt = (t - last) / 1000
@@ -46,7 +49,9 @@ export default function VinylRecord({
       }
 
       angleRef.current = (angleRef.current + speedRef.current * dt) % 360
-      setAngle(angleRef.current)
+      if (recordRef.current) {
+        recordRef.current.style.transform = `rotate(${angleRef.current}deg)`
+      }
       rafRef.current = requestAnimationFrame(tick)
     }
     rafRef.current = requestAnimationFrame(tick)
@@ -80,9 +85,10 @@ export default function VinylRecord({
 
       {/* 唱片本体 */}
       <div
+        ref={recordRef}
         className="absolute inset-0 rounded-full"
         style={{
-          transform: `rotate(${angle}deg)`,
+          transform: 'rotate(0deg)',
           willChange: 'transform',
           background: `
             radial-gradient(circle at 50% 50%,

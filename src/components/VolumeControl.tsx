@@ -42,10 +42,34 @@ export default function VolumeControl({
     setDragging(false)
   }
 
+  const onPointerCancel = (e: React.PointerEvent) => {
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+      e.currentTarget.releasePointerCapture(e.pointerId)
+    }
+    setDragging(false)
+  }
+
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'ArrowRight') {
+      e.preventDefault()
+      onVolume(clamp(volume + 0.05, 0, 1))
+    } else if (e.key === 'ArrowLeft') {
+      e.preventDefault()
+      onVolume(clamp(volume - 0.05, 0, 1))
+    } else if (e.key === 'Home') {
+      e.preventDefault()
+      onVolume(0)
+    } else if (e.key === 'End') {
+      e.preventDefault()
+      onVolume(1)
+    }
+  }
+
   return (
     <div className="flex items-center gap-2">
       <button
         onClick={onToggleMute}
+        aria-label={muted ? '取消静音' : '静音'}
         className="btn-press text-white/60 transition-colors hover:text-white"
         title={muted ? '取消静音' : '静音'}
       >
@@ -84,9 +108,17 @@ export default function VolumeControl({
 
       <div
         ref={trackRef}
+        role="slider"
+        aria-label="音量"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={Math.round(effective * 100)}
+        tabIndex={0}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
+        onPointerCancel={onPointerCancel}
+        onKeyDown={onKeyDown}
         className="group relative h-1.5 w-24 cursor-pointer rounded-full sm:w-28"
         style={{ background: 'rgba(255,255,255,0.08)' }}
       >

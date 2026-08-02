@@ -34,6 +34,7 @@ export default function App() {
       autoplayedRef.current = true
       player.play().catch(() => {})
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stage, player.ready, player.play])
 
   const entered = stage === 'vinyl' || stage === 'tonearm' || stage === 'done'
@@ -79,6 +80,7 @@ export default function App() {
             {/* 移动端打开列表按钮 */}
             <button
               onClick={() => setPlaylistOpen(true)}
+              aria-label="打开播放列表"
               className="btn-press glass flex h-10 items-center gap-2 rounded-full px-4 text-sm text-white/80 hover:text-white lg:hidden"
             >
               <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4">
@@ -119,7 +121,7 @@ export default function App() {
               />
 
               {/* 唱针 */}
-              <Tonearm isPlaying={tonearmDown && player.isPlaying} entered={entered} />
+              <Tonearm isPlaying={tonearmDown && player.isPlaying} entered={entered} accent={accent} />
             </div>
           </div>
 

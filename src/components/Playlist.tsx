@@ -51,6 +51,7 @@ export default function Playlist({
           </div>
           <button
             onClick={onClose}
+            aria-label="关闭播放列表"
             className="btn-press glass flex h-9 w-9 items-center justify-center rounded-full text-white/70 hover:text-white lg:hidden"
           >
             <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">

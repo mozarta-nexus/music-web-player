@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { prefersReducedMotion } from '../utils/motion'
 
 interface AudioVisualizerProps {
   analyser: AnalyserNode | null
@@ -39,7 +40,6 @@ export default function AudioVisualizer({
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
     }
     resize()
-    window.addEventListener('resize', resize)
 
     const draw = () => {
       const w = canvas.clientWidth
@@ -80,11 +80,47 @@ export default function AudioVisualizer({
         ctx.lineTo(x2, y2)
         ctx.stroke()
       }
-
       rafRef.current = requestAnimationFrame(draw)
     }
-    rafRef.current = requestAnimationFrame(draw)
 
+    if (prefersReducedMotion()) {
+      // 减少动态效果：只绘制一帧静态频谱柱
+      const drawStatic = () => {
+        const w = canvas.clientWidth
+        const h = canvas.clientHeight
+        const cx = w / 2
+        const cy = h / 2
+        ctx.clearRect(0, 0, w, h)
+        const bars = 72
+        const baseRadius = Math.min(w, h) * 0.46
+        for (let i = 0; i < bars; i++) {
+          const angle = (i / bars) * Math.PI * 2 - Math.PI / 2
+          const x1 = cx + Math.cos(angle) * baseRadius
+          const y1 = cy + Math.sin(angle) * baseRadius
+          const x2 = cx + Math.cos(angle) * (baseRadius + 3)
+          const y2 = cy + Math.sin(angle) * (baseRadius + 3)
+          ctx.strokeStyle = accent + 'cc'
+          ctx.lineWidth = 2.5
+          ctx.lineCap = 'round'
+          ctx.beginPath()
+          ctx.moveTo(x1, y1)
+          ctx.lineTo(x2, y2)
+          ctx.stroke()
+        }
+      }
+      const onResize = () => {
+        resize()
+        drawStatic()
+      }
+      drawStatic()
+      window.addEventListener('resize', onResize)
+      return () => {
+        window.removeEventListener('resize', onResize)
+      }
+    }
+
+    window.addEventListener('resize', resize)
+    rafRef.current = requestAnimationFrame(draw)
     return () => {
       cancelAnimationFrame(rafRef.current)
       window.removeEventListener('resize', resize)

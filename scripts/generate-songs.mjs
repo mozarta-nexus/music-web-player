@@ -8,20 +8,16 @@ const SRATES = [44100, 48000, 32000, 0]
 function estimateDuration(filepath) {
   try {
     const buf = readFileSync(filepath)
-    let offset = 0
+    let pos = 0
     if (buf[0] === 0x49 && buf[1] === 0x44 && buf[2] === 0x33) {
       const size = (buf[6] & 0x7f) * 0x200000 + (buf[7] & 0x7f) * 0x4000 + (buf[8] & 0x7f) * 0x80 + (buf[9] & 0x7f)
-      offset = 10 + size
+      pos = 10 + size
     }
-    let bitrate = 128000
     let sampleRate = 44100
-    let frameLen = 0
     let frames = 0
-    let pos = offset
-    const limit = Math.min(buf.length, 200000)
-    while (pos < limit - 4) {
+    // 全文件逐帧扫描，兼容 VBR 变码率文件
+    while (pos < buf.length - 4) {
       if (buf[pos] === 0xff && (buf[pos + 1] & 0xe0) === 0xe0) {
-        const ver = (buf[pos + 1] >> 3) & 0x03
         const layer = (buf[pos + 1] >> 1) & 0x03
         const brIdx = (buf[pos + 2] >> 4) & 0x0f
         const srIdx = (buf[pos + 2] >> 2) & 0x03
@@ -30,23 +26,21 @@ function estimateDuration(filepath) {
         const br = BITRATES[brIdx] * 1000
         const sr = SRATES[srIdx]
         if (sr === 0) { pos++; continue }
-        bitrate = br
         sampleRate = sr
-        if (layer === 1) frameLen = Math.floor((12 * br) / sr + pad) * 4
-        else frameLen = Math.floor((144 * br) / sr + pad)
+        const frameLen =
+          layer === 1
+            ? Math.floor((12 * br) / sr + pad) * 4
+            : Math.floor((144 * br) / sr + pad)
         if (frameLen <= 0) { pos++; continue }
-        frames++
         pos += frameLen
-        if (frames >= 50) break
+        frames++
       } else {
         pos++
       }
     }
-    if (frames > 0 && bitrate > 0) {
-      const audioBytes = buf.length - offset
-      return Math.round((audioBytes * 8) / bitrate)
-    }
-    return 0
+    if (frames === 0) return 0
+    // MPEG Layer II/III 每帧 1152 个采样
+    return Math.round((frames * 1152) / sampleRate)
   } catch {
     return 0
   }
@@ -119,40 +113,34 @@ function escapeXml(s) {
   return s.replace(/[<>&'"]/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', "'": '&apos;', '"': '&quot;' }[c]))
 }
 
-if (!existsSync(coverDir)) {
-  import('node:fs').then(({ mkdirSync }) => mkdirSync(coverDir, { recursive: true }))
-}
+if (!existsSync(coverDir)) mkdirSync(coverDir, { recursive: true })
 
-import('node:fs').then(({ mkdirSync }) => {
-  if (!existsSync(coverDir)) mkdirSync(coverDir, { recursive: true })
+const songs = files.map((filename, i) => {
+  const { title, artist } = parseName(filename)
+  const id = String(i + 1)
+  const h = hash(title + artist)
+  const [c1, c2] = palettes[h % palettes.length]
+  const svg = makeCover(id, title, c1, c2)
+  writeFileSync(join(coverDir, `${id}.svg`), svg, 'utf8')
+  const duration = estimateDuration(join(audioDir, filename))
+  return {
+    id,
+    title,
+    artist,
+    album: '本地收藏',
+    duration,
+    cover: `covers/${id}.svg`,
+    src: `audio/${encodeURI(filename)}`,
+    colors: [c1, c2, '#050507'],
+  }
+})
 
-  const songs = files.map((filename, i) => {
-    const { title, artist } = parseName(filename)
-    const id = String(i + 1)
-    const h = hash(title + artist)
-    const [c1, c2] = palettes[h % palettes.length]
-    const svg = makeCover(id, title, c1, c2)
-    writeFileSync(join(coverDir, `${id}.svg`), svg, 'utf8')
-    const duration = estimateDuration(join(audioDir, filename))
-    return {
-      id,
-      title,
-      artist,
-      album: '本地收藏',
-      duration,
-      cover: `covers/${id}.svg`,
-      src: `audio/${encodeURI(filename)}`,
-      colors: [c1, c2, '#050507'],
-    }
-  })
-
-  const ts = `// 自动生成 - 请勿手动编辑
+const ts = `// 自动生成 - 请勿手动编辑
 import type { Song } from '../types'
 
 export const songs: Song[] = ${JSON.stringify(songs, null, 2)}
 `
-  writeFileSync(songsFile, ts, 'utf8')
-  console.log(`已生成 ${songs.length} 首歌曲数据，${dupes.length} 个重复文件已删除`)
-  console.log(`封面目录: public/covers/`)
-  console.log(`数据文件: src/data/songs.ts`)
-})
+writeFileSync(songsFile, ts, 'utf8')
+console.log(`已生成 ${songs.length} 首歌曲数据，${dupes.length} 个重复文件已删除`)
+console.log(`封面目录: public/covers/`)
+console.log(`数据文件: src/data/songs.ts`)

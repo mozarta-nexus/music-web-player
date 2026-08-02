@@ -2,6 +2,10 @@
 
 沉浸式黑胶唱片风格 Web 音乐播放器，融合实时音频频谱可视化、动态粒子背景与赛博朋克视觉特效，打造极致 HiFi 视听体验。
 
+[![在线体验](https://img.shields.io/badge/在线体验-GitHub%20Pages-brightgreen)](https://mozarta-nexus.github.io/music-web-player/)
+[![构建状态](https://img.shields.io/github/actions/workflow/status/mozarta-nexus/music-web-player/deploy.yml)](.github/workflows/deploy.yml)
+[![License](https://img.shields.io/github/license/mozarta-nexus/music-web-player)](LICENSE)
+
 ## 在线体验
 
 无需安装任何环境，直接打开：[https://mozarta-nexus.github.io/music-web-player/](https://mozarta-nexus.github.io/music-web-player/)

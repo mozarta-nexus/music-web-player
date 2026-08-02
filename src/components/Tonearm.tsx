@@ -1,6 +1,7 @@
 interface TonearmProps {
   isPlaying: boolean
   entered?: boolean
+  accent?: string
 }
 
 /**
@@ -10,7 +11,7 @@ interface TonearmProps {
  * - 暂停时抬起
  * - 机械动画效果
  */
-export default function Tonearm({ isPlaying, entered = true }: TonearmProps) {
+export default function Tonearm({ isPlaying, entered = true, accent = '#a855f7' }: TonearmProps) {
   return (
     <div
       className="pointer-events-none absolute right-[8%] top-[2%] z-20"
@@ -48,8 +49,8 @@ export default function Tonearm({ isPlaying, entered = true }: TonearmProps) {
               width: '40%',
               height: '40%',
               transform: 'translate(-50%, -50%)',
-              background: 'radial-gradient(circle, #a855f7 0%, #6d28d9 100%)',
-              boxShadow: '0 0 12px rgba(168,85,247,0.8)',
+              background: `radial-gradient(circle, ${accent} 0%, #6d28d9 100%)`,
+              boxShadow: `0 0 12px ${accent}`,
             }}
           />
         </div>
@@ -105,12 +106,8 @@ export default function Tonearm({ isPlaying, entered = true }: TonearmProps) {
               bottom: '0%',
               width: '30%',
               height: '30%',
-              background: isPlaying
-                ? 'radial-gradient(circle, #22d3ee 0%, transparent 70%)'
-                : 'radial-gradient(circle, #a855f7 0%, transparent 70%)',
-              boxShadow: isPlaying
-                ? '0 0 10px #22d3ee'
-                : '0 0 8px #a855f7',
+              background: `radial-gradient(circle, ${accent} 0%, transparent 70%)`,
+              boxShadow: `0 0 ${isPlaying ? 10 : 8}px ${accent}`,
               transition: 'all 0.4s ease',
             }}
           />

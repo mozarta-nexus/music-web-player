@@ -53,6 +53,31 @@ export default function ProgressBar({
     setDragging(false)
   }
 
+  const onPointerCancel = (e: React.PointerEvent) => {
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+      e.currentTarget.releasePointerCapture(e.pointerId)
+    }
+    setDragging(false)
+  }
+
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    if (duration <= 0) return
+    const step = Math.max(5, duration * 0.05)
+    if (e.key === 'ArrowRight') {
+      e.preventDefault()
+      onSeek(clamp(currentTime + step, 0, duration))
+    } else if (e.key === 'ArrowLeft') {
+      e.preventDefault()
+      onSeek(clamp(currentTime - step, 0, duration))
+    } else if (e.key === 'Home') {
+      e.preventDefault()
+      onSeek(0)
+    } else if (e.key === 'End') {
+      e.preventDefault()
+      onSeek(duration)
+    }
+  }
+
   const displayTime = dragging ? dragTime : currentTime
 
   return (
@@ -64,9 +89,17 @@ export default function ProgressBar({
 
       <div
         ref={trackRef}
+        role="slider"
+        aria-label="播放进度"
+        aria-valuemin={0}
+        aria-valuemax={Math.round(duration) || 0}
+        aria-valuenow={Math.round(displayTime)}
+        tabIndex={0}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
+        onPointerCancel={onPointerCancel}
+        onKeyDown={onKeyDown}
         className="group relative h-2 cursor-pointer rounded-full"
         style={{
           background: 'rgba(255,255,255,0.08)',

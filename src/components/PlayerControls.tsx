@@ -72,6 +72,7 @@ export default function PlayerControls({
       {/* 模式切换 */}
       <button
         onClick={onCycleMode}
+        aria-label={`播放模式：${modeLabel}`}
         title={modeLabel}
         className="btn-press glass flex h-10 w-10 items-center justify-center rounded-full text-white/60 transition-all hover:text-white sm:h-11 sm:w-11"
         style={{
@@ -92,6 +93,7 @@ export default function PlayerControls({
       {/* 上一首 */}
       <button
         onClick={onPrev}
+        aria-label="上一首"
         title="上一首"
         className="btn-press glass flex h-12 w-12 items-center justify-center rounded-full text-white/80 transition-all hover:text-white hover:shadow-[0_0_20px_rgba(255,255,255,0.2)] sm:h-14 sm:w-14"
       >
@@ -103,6 +105,7 @@ export default function PlayerControls({
       {/* 播放/暂停（主按钮） */}
       <button
         onClick={onToggle}
+        aria-label={isPlaying ? '暂停' : '播放'}
         title={isPlaying ? '暂停' : '播放'}
         className="btn-press glass-strong relative flex h-16 w-16 items-center justify-center rounded-full text-white transition-all hover:scale-105 sm:h-20 sm:w-20"
         style={{
@@ -135,6 +138,7 @@ export default function PlayerControls({
       {/* 下一首 */}
       <button
         onClick={onNext}
+        aria-label="下一首"
         title="下一首"
         className="btn-press glass flex h-12 w-12 items-center justify-center rounded-full text-white/80 transition-all hover:text-white hover:shadow-[0_0_20px_rgba(255,255,255,0.2)] sm:h-14 sm:w-14"
       >
