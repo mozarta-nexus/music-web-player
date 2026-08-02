@@ -140,8 +140,8 @@ import('node:fs').then(({ mkdirSync }) => {
       artist,
       album: '本地收藏',
       duration,
-      cover: `/covers/${id}.svg`,
-      src: `/audio/${encodeURI(filename)}`,
+      cover: `covers/${id}.svg`,
+      src: `audio/${encodeURI(filename)}`,
       colors: [c1, c2, '#050507'],
     }
   })
