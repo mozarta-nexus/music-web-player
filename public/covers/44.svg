@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#22d3ee"/>
+      <stop offset="100%" stop-color="#0c4a6e"/>
+    </linearGradient>
+    <radialGradient id="v" cx="50%" cy="50%" r="70%">
+      <stop offset="60%" stop-color="transparent"/>
+      <stop offset="100%" stop-color="rgba(0,0,0,0.5)"/>
+    </radialGradient>
+  </defs>
+  <rect width="600" height="600" fill="url(#g)"/>
+  <circle cx="300" cy="300" r="276" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1.5"/><circle cx="300" cy="300" r="252" fill="none" stroke="rgba(255,255,255,0.06999999999999999)" stroke-width="1.5"/><circle cx="300" cy="300" r="228" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1.5"/><circle cx="300" cy="300" r="204.00000000000003" fill="none" stroke="rgba(255,255,255,0.09)" stroke-width="1.5"/><circle cx="300" cy="300" r="180" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1.5"/><circle cx="300" cy="300" r="156" fill="none" stroke="rgba(255,255,255,0.11)" stroke-width="1.5"/>
+  <circle cx="300" cy="300" r="150" fill="rgba(0,0,0,0.35)" stroke="rgba(255,255,255,0.15)" stroke-width="2"/>
+  <text x="300" y="300" text-anchor="middle" dominant-baseline="central" font-family="Space Grotesk, sans-serif" font-size="150" font-weight="700" fill="rgba(255,255,255,0.92)">红</text>
+  <rect width="600" height="600" fill="url(#v)"/>
+</svg>

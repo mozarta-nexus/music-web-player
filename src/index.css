@@ -1,0 +1,258 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background-color: #050507;
+    color: #f5f5f7;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(168, 85, 247, 0.3);
+    border-radius: 999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(168, 85, 247, 0.6);
+  }
+}
+
+@layer components {
+  /* ===== 玻璃拟态 ===== */
+  .glass {
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .glass-strong {
+    background: rgba(255, 255, 255, 0.07);
+    backdrop-filter: blur(30px) saturate(200%);
+    -webkit-backdrop-filter: blur(30px) saturate(200%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  .glass-dark {
+    background: rgba(10, 10, 12, 0.55);
+    backdrop-filter: blur(24px) saturate(160%);
+    -webkit-backdrop-filter: blur(24px) saturate(160%);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  /* ===== 渐变文字 ===== */
+  .text-gradient {
+    background: linear-gradient(135deg, #ffffff 0%, #c4b5fd 50%, #a855f7 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .text-gradient-neon {
+    background: linear-gradient(135deg, #22d3ee 0%, #a855f7 50%, #ec4899 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* ===== 发光效果 ===== */
+  .glow-purple {
+    box-shadow: 0 0 30px rgba(168, 85, 247, 0.5), 0 0 60px rgba(168, 85, 247, 0.2);
+  }
+
+  .glow-cyan {
+    box-shadow: 0 0 30px rgba(34, 211, 238, 0.5), 0 0 60px rgba(34, 211, 238, 0.2);
+  }
+
+  .text-glow {
+    text-shadow: 0 0 20px rgba(168, 85, 247, 0.6), 0 0 40px rgba(168, 85, 247, 0.3);
+  }
+}
+
+@layer utilities {
+  /* ===== 黑胶唱片旋转 ===== */
+  .vinyl-spin {
+    animation: vinylSpin 6s linear infinite;
+  }
+
+  .vinyl-spin-paused {
+    animation: vinylSpinSlow 2.5s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+  }
+
+  @keyframes vinylSpin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes vinylSpinSlow {
+    from {
+      transform: rotate(var(--vinyl-angle, 0deg));
+    }
+    to {
+      transform: rotate(calc(var(--vinyl-angle, 0deg) + 30deg));
+    }
+  }
+
+  /* ===== 唱针动画 ===== */
+  .tonearm-down {
+    transition: transform 1.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transform: rotate(32deg);
+  }
+
+  .tonearm-up {
+    transition: transform 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transform: rotate(-8deg);
+  }
+
+  /* ===== 加载入场动画 ===== */
+  .fade-in-up {
+    animation: fadeInUp 1s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .fade-in {
+    animation: fadeIn 1.2s ease-out both;
+  }
+
+  .scale-in {
+    animation: scaleIn 1.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.85);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  /* ===== 背景流动渐变 ===== */
+  .gradient-flow {
+    background: linear-gradient(
+      135deg,
+      var(--bg-color-1, #1a0b2e) 0%,
+      var(--bg-color-2, #0a0a0c) 50%,
+      var(--bg-color-3, #050507) 100%
+    );
+    background-size: 200% 200%;
+    animation: gradientFlow 15s ease infinite;
+  }
+
+  @keyframes gradientFlow {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+
+  /* ===== 闪烁微光 ===== */
+  .shimmer-text {
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.4) 0%,
+      rgba(255, 255, 255, 1) 50%,
+      rgba(255, 255, 255, 0.4) 100%
+    );
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmer 3s linear infinite;
+  }
+
+  @keyframes shimmer {
+    to {
+      background-position: 200% center;
+    }
+  }
+
+  /* ===== 按钮按下缩放 ===== */
+  .btn-press {
+    transition: transform 0.15s ease, box-shadow 0.3s ease;
+  }
+
+  .btn-press:active {
+    transform: scale(0.88);
+  }
+
+  /* ===== 唱片沟槽反光 ===== */
+  .vinyl-sheen {
+    background: conic-gradient(
+      from 0deg,
+      transparent 0deg,
+      rgba(255, 255, 255, 0.04) 30deg,
+      transparent 60deg,
+      transparent 180deg,
+      rgba(255, 255, 255, 0.06) 210deg,
+      transparent 240deg,
+      transparent 360deg
+    );
+  }
+
+  /* ===== 隐藏滚动条但保留滚动 ===== */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}

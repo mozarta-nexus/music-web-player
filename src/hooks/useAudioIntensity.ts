@@ -1,0 +1,41 @@
+import { useEffect, useRef, useState } from 'react'
+
+/**
+ * 从 AnalyserNode 实时读取音乐强度（0-1）
+ * 用于驱动唱片轻微动态效果
+ */
+export function useAudioIntensity(analyser: AnalyserNode | null, isPlaying: boolean) {
+  const [intensity, setIntensity] = useState(0)
+  const dataRef = useRef<Uint8Array<ArrayBuffer> | null>(null)
+  const rafRef = useRef<number>(0)
+  const smoothRef = useRef(0)
+
+  useEffect(() => {
+    if (!analyser) return
+    dataRef.current = new Uint8Array(analyser.frequencyBinCount) as Uint8Array<ArrayBuffer>
+  }, [analyser])
+
+  useEffect(() => {
+    const tick = () => {
+      const data = dataRef.current
+      const node = analyser
+      if (node && data && isPlaying) {
+        node.getByteFrequencyData(data)
+        let sum = 0
+        const n = Math.min(data.length, 64)
+        for (let i = 0; i < n; i++) sum += data[i]
+        const avg = sum / n / 255
+        smoothRef.current += (avg - smoothRef.current) * 0.15
+        setIntensity(smoothRef.current)
+      } else {
+        smoothRef.current *= 0.9
+        setIntensity(smoothRef.current)
+      }
+      rafRef.current = requestAnimationFrame(tick)
+    }
+    rafRef.current = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(rafRef.current)
+  }, [analyser, isPlaying])
+
+  return intensity
+}
