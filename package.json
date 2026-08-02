@@ -2,6 +2,7 @@
   "name": "music-web-player",
   "private": false,
   "version": "1.0.0",
+  "author": "莫扎他",
   "type": "module",
   "scripts": {
     "dev": "vite",

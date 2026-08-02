@@ -109,7 +109,7 @@ node scripts/generate-songs.mjs
 
 ## 开源协议
 
-[MIT](LICENSE)
+本项目采用 [MIT](LICENSE) 协议开源，Copyright © 2026 莫扎他。
 
 ## 贡献
 
