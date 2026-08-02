@@ -1,6 +1,6 @@
 # 贡献指南
 
-感谢你对 Music Web Player 项目的关注！欢迎参与贡献。
+感谢你对 music-web-player 项目的关注！欢迎参与贡献。
 
 ## 开发流程
 

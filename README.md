@@ -1,4 +1,4 @@
-# Music Web Player
+# music-web-player
 
 沉浸式黑胶唱片风格 Web 音乐播放器，融合实时音频频谱可视化、动态粒子背景与赛博朋克视觉特效，打造极致 HiFi 视听体验。
 

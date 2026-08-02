@@ -68,7 +68,7 @@ export default function App() {
               </div>
               <div>
                 <h1 className="font-display text-base font-bold tracking-tight text-white sm:text-lg">
-                  VINYL
+                  music-web-player
                 </h1>
                 <p className="-mt-1 text-[10px] uppercase tracking-[0.2em] text-white/40">
                   HiFi Player
@@ -190,7 +190,7 @@ export default function App() {
               style={{ borderTopColor: accent, animation: 'spin 1s linear infinite' }}
             />
             <p className="mt-4 font-display text-sm uppercase tracking-[0.3em] text-white/50">
-              Vinyl
+              music-web-player
             </p>
           </div>
         </div>
