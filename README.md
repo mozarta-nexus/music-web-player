@@ -2,6 +2,10 @@
 
 沉浸式黑胶唱片风格 Web 音乐播放器，融合实时音频频谱可视化、动态粒子背景与赛博朋克视觉特效，打造极致 HiFi 视听体验。
 
+## 在线体验
+
+无需安装任何环境，直接打开：[https://mozarta-nexus.github.io/music-web-player/](https://mozarta-nexus.github.io/music-web-player/)
+
 ## 特性
 
 - **黑胶唱片视觉模拟** — 纯 CSS 实现同心圆沟槽纹理、conic-gradient 反光光泽、中心封面旋转，播放时匀速旋转，暂停时缓慢减速停止
